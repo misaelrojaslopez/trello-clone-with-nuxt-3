@@ -26,19 +26,6 @@ function deleteColumn(columnIndex) {
    boardStore.deleteColumn(columnIndex)
 }
 
-function dropTask(event, toColumnIndex) {
-    console.log(event)
-    const fromColumnIndex = event.dataTransfer.getData('from-column-index')        
-    const taskIndex = event.dataTransfer.getData('task-index')
-
-    boardStore.moveTask({
-        taskIndex,
-        fromColumnIndex,
-        toColumnIndex
-    })
-
-}
-
 /**
 * Tasks funtions
 */
@@ -55,21 +42,59 @@ function addTask(taskId) {
    newTaskName.value = ''
 }
 
+/**
+ * Drag and drop
+ */
+
 function pickupTask(event, { fromColumnIndex, taskIndex}) {
     console.log(event)
     event.dataTransfer.affectAllowed = 'move'
     event.dataTransfer.dropEffect = 'move'
+    event.dataTransfer.setData('Type', 'task')
     event.dataTransfer.setData('from-column-index', fromColumnIndex)
     event.dataTransfer.setData('task-index', taskIndex)
+}
+
+function pickupColumn(event, fromColumnIndex) {
+    console.log(event)
+    event.dataTransfer.affectAllowed = 'move'
+    event.dataTransfer.dropEffect = 'move'
+    event.dataTransfer.setData('Type', 'column')
+    event.dataTransfer.setData('from-column-index', fromColumnIndex)
+}
+
+function dropItem(event, toColumnIndex) {
+    console.log(event)
+    const type = event.dataTransfer.getData('type')
+    const fromColumnIndex = event.dataTransfer.getData('from-column-index')        
+
+    if( type === 'task') {
+        const taskIndex = event.dataTransfer.getData('task-index')
+
+        boardStore.moveTask({
+            taskIndex,
+            fromColumnIndex,
+            toColumnIndex
+        })
+    } else if (type === 'column') {
+        const fromColumnIndex = event.dataTransfer.getData('from-column-index')
+
+        boardStore.moveColumn({
+            fromColumnIndex,
+            toColumnIndex
+        })
+    }
 }
 </script>
 
 <template>
 <UContainer
     class="column"
+    draggable="true"
+    @dragstart.self="pickupColumn($event, columnIndex)"
     @dragenter.prevent
     @dragover.prevent
-    @drop.stop="dropTask($event, columnIndex)"
+    @drop.stop="dropItem($event, columnIndex)"
 >
     <div class="column-header mb-4">
     <div class="flex items-center">
