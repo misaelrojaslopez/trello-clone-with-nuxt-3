@@ -8,7 +8,8 @@
 <template>
   <Html class="bg-slate-600">
     <div>
-    <NuxtPage />
-  </div>  
+      <NuxtPage />
+    </div>
+    <UNotifications />
   </Html>
 </template>

@@ -63,7 +63,7 @@ function pickupColumn(event, fromColumnIndex) {
     event.dataTransfer.setData('from-column-index', fromColumnIndex)
 }
 
-function dropItem(event, toColumnIndex) {
+function dropItem(event, {toColumnIndex, toTaskIndex }) {
     console.log(event)
     const type = event.dataTransfer.getData('type')
     const fromColumnIndex = event.dataTransfer.getData('from-column-index')        
@@ -72,7 +72,8 @@ function dropItem(event, toColumnIndex) {
         const taskIndex = event.dataTransfer.getData('task-index')
 
         boardStore.moveTask({
-            taskIndex,
+            fromTaskIndex: taskIndex,
+            toTaskIndex: toTaskIndex,
             fromColumnIndex,
             toColumnIndex
         })
@@ -94,7 +95,7 @@ function dropItem(event, toColumnIndex) {
     @dragstart.self="pickupColumn($event, columnIndex)"
     @dragenter.prevent
     @dragover.prevent
-    @drop.stop="dropItem($event, columnIndex)"
+    @drop.stop="dropItem($event, { toColumnIndex: columnIndex })"
 >
     <div class="column-header mb-4">
     <div class="flex items-center">
@@ -127,8 +128,13 @@ function dropItem(event, toColumnIndex) {
             @dragstart="pickupTask($event, {
                 fromColumnIndex: columnIndex,
                 taskIndex,
-            })
-        ">
+            })"
+            @drop.stop="dropItem($event, {
+                toColumnIndex: columnIndex,
+                toTaskIndex: taskIndex,
+
+            })"
+        >
             <b> {{  task.name }}</b>
             <p> {{ task.description }}</p>
         </UCard> 
